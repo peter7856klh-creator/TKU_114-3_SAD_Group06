@@ -1,314 +1,564 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>校園揪團與共乘分攤平台 - 物件導向分析模型</title>
-  <style>
-    :root {
-      --primary: #3b82f6;
-      --primary-dark: #2563eb;
-      --accent: #10b981;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --danger: #ef4444;
-      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校園揪團與共乘分攤平台 - OOAD 模型與 Slice 4 重構實作版</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e5e7eb;
+        }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-      color: var(--text);
-      line-height: 1.6;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 20px;
+            margin: 0;
+        }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
-    header {
-      background: var(--card);
-      box-shadow: var(--shadow);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 24px;
-    }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
 
-    h1, h2, h3 { margin-top: 0; }
-    .badge {
-      display: inline-block;
-      background: #dbeafe;
-      color: var(--primary-dark);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+        h1 { margin: 0 0 10px 0; color: var(--primary); font-size: 24px; }
+        .subtitle { color: var(--muted); margin: 0; font-size: 14px; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin: 20px 0;
-    }
+        .ooad-docs {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-    .panel {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
+        .ooad-docs h3 { margin-top: 0; color: var(--primary); }
+        .badge-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
 
-    .card-list {
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
+        .form-section, .board-section, .test-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
 
-    .class-card {
-      border: 1px solid #dbeafe;
-      border-radius: 14px;
-      padding: 16px;
-      background: #f8fbff;
-    }
+        h2 { margin-top: 0; border-bottom: 2px solid var(--bg); padding-bottom: 10px; font-size: 18px; color: var(--text); }
 
-    .class-card h3 { margin-bottom: 8px; color: var(--primary-dark); }
-    .class-card ul { margin: 8px 0 0 18px; padding: 0; color: var(--muted); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
 
-    .timeline {
-      display: grid;
-      gap: 12px;
-      margin-top: 12px;
-    }
+        button {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s;
+        }
 
-    .step {
-      background: #f8fafc;
-      border-left: 4px solid var(--primary);
-      border-radius: 10px;
-      padding: 12px 14px;
-    }
+        button:hover { background-color: var(--primary-hover); }
+        button:disabled { background-color: var(--muted); cursor: not-allowed; }
 
-    .status-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
 
-    .status-pill {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: white;
-    }
-    .status-open { background: var(--accent); }
-    .status-full { background: var(--danger); }
-    .status-closed { background: #64748b; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-    .board {
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      margin-top: 14px;
-    }
+        .card.full { border-color: var(--danger); background-color: #fef2f2; }
+        .card.closed { border-color: #9ca3af; background-color: #f3f4f6; }
 
-    .activity-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px;
-      background: white;
-    }
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+        .badge.open { background-color: var(--success); }
+        .badge.full { background-color: var(--danger); }
+        .badge.closed { background-color: #6b7280; }
 
-    .activity-card.full { border-color: var(--danger); background: #fef2f2; }
-    .action {
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      font-size: 0.95rem;
-      margin-top: 10px;
-    }
-    .action:hover { background: var(--primary-dark); }
+        .card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; padding-right: 65px; }
+        .card-info { font-size: 13px; color: var(--muted); margin: 4px 0; }
+        .price-box {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .share-amount { font-size: 18px; color: var(--primary); font-weight: bold; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.95rem;
-    }
-    th, td {
-      border: 1px solid #e2e8f0;
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: #f8fafc; }
-
-    .footer-note {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-  </style>
+        /* 測試主控台樣式 */
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .test-table th, .test-table td {
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .test-table th { background-color: #f8fafc; }
+        .pass { color: var(--success); font-weight: bold; }
+        .fail { color: var(--danger); font-weight: bold; }
+    </style>
 </head>
 <body>
-  <div class="container">
+
+<div class="container">
     <header>
-      <div class="badge">物件導向分析模型展示頁</div>
-      <h1>校園揪團與共乘分攤平台</h1>
-      <p>本頁整合了類別圖、循序圖與狀態模型，並展示目前可操作切片中「發起揪團、看板瀏覽、加入揪團與分攤計算」的核心流程。</p>
+        <h1>校園揪團與共乘平台</h1>
+        <p class="subtitle">任務 10 成果展現：模型驅動 (OOAD) 重構與可運作切片展示頁</p>
     </header>
 
-    <section class="panel">
-      <h2>1. 分析類別</h2>
-      <div class="card-list">
-        <article class="class-card">
-          <h3>Group</h3>
-          <ul>
-            <li>保存揪團基本資料</li>
-            <li>管理 open / full / closed 狀態</li>
-            <li>計算剩餘名額</li>
-          </ul>
-        </article>
-        <article class="class-card">
-          <h3>User</h3>
-          <ul>
-            <li>代表發起者與加入者</li>
-            <li>執行加入揪團操作</li>
-            <li>與 JoinRecord 建立關聯</li>
-          </ul>
-        </article>
-        <article class="class-card">
-          <h3>JoinRecord</h3>
-          <ul>
-            <li>紀錄加入時間與加入狀態</li>
-            <li>保存加入順序</li>
-            <li>支援多對多關係拆解</li>
-          </ul>
-        </article>
-        <article class="class-card">
-          <h3>SplitResult</h3>
-          <ul>
-            <li>保存分攤結果</li>
-            <li>依據車資與人數計算</li>
-            <li>支援後續歷史版本擴充</li>
-          </ul>
-        </article>
-        <article class="class-card">
-          <h3>StatusLog</h3>
-          <ul>
-            <li>記錄狀態變更歷程</li>
-            <li>支援追蹤 open → full → closed</li>
-            <li>方便回溯與驗證</li>
-          </ul>
-        </article>
-      </div>
-    </section>
+    <!-- [任務 0 & 1] 模型基準與 BCE 責任摘要說明 -->
+    <div class="ooad-docs">
+        <h3>📌 分析模型與 BCE 職責架構 (Model Baseline)</h3>
+        <p>本系統嚴格遵守 Boundary-Control-Entity (BCE) 責任分工與狀態轉移守衛規則：</p>
+        <ul>
+            <li><span class="badge-tag">Boundary</span> <strong>BoardView / FormView</strong>：負責接收使用者觸發事件並渲染 DOM，不參與金額運算與狀態邏輯。</li>
+            <li><span class="badge-tag">Control</span> <strong>GroupController</strong>：處理 UC-01 至 UC-03 業務流程，校驗輸入合法性與狀態轉換（拒絕非法轉移）。</li>
+            <li><span class="badge-tag">Entity</span> <strong>Group / JoinRecord / User</strong>：保存揪團核心資料與成員清單，計算即時平攤費用 $\text{TotalCost} / \text{CurrentMembers}$。</li>
+            <li><span class="badge-tag">State</span> <strong>狀態機生命週期</strong>：<code>open</code> (招募中) $\rightarrow$ <code>full</code> (滿額) $\rightarrow$ <code>closed</code> (已關閉)。</li>
+        </ul>
+    </div>
 
-    <section class="panel">
-      <h2>2. 核心循序流程</h2>
-      <div class="timeline">
-        <div class="step"><strong>1.</strong> 團主建立揪團：Group 建立一筆資料並設定初始狀態為 open。</div>
-        <div class="step"><strong>2.</strong> 使用者瀏覽看板：系統讀取 Group 資料並計算剩餘名額。</div>
-        <div class="step"><strong>3.</strong> 使用者加入揪團：User 觸發加入操作，JoinRecord 記錄事件。</div>
-        <div class="step"><strong>4.</strong> 系統更新狀態：若人數達上限，Group 轉為 full；若有人取消，則重新回到 open。</div>
-        <div class="step"><strong>5.</strong> 分攤計算：SplitResult 依據總車資與加入人數計算每人應付。</div>
-      </div>
-    </section>
+    <!-- [IMP-01] 發起揪團表單模組 (UC-01) -->
+    <div class="form-section">
+        <h2>發起新揪團 (UC-01)</h2>
+        <form id="create-form">
+            <div class="form-group">
+                <label for="title">揪團主題 / 目的地</label>
+                <input type="text" id="title" placeholder="例如：計程車共乘往高鐵站、爭鮮外送分攤" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="total-cost">總金額 (NTD)</label>
+                    <input type="number" id="total-cost" min="1" value="400" required>
+                </div>
+                <div class="form-group">
+                    <label for="max-members">徵求總人數 (含團主，2~10 人)</label>
+                    <input type="number" id="max-members" min="2" max="10" value="4" required>
+                </div>
+            </div>
+            <button type="submit">發起揪團</button>
+        </form>
+    </div>
 
-    <section class="panel">
-      <h2>3. 狀態模型</h2>
-      <div class="status-row">
-        <span class="status-pill status-open">open</span>
-        <span class="status-pill status-full">full</span>
-        <span class="status-pill status-closed">closed</span>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>狀態</th>
-            <th>事件</th>
-            <th>下一狀態</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>open</td>
-            <td>加入成功且人數未達上限</td>
-            <td>open</td>
-          </tr>
-          <tr>
-            <td>open</td>
-            <td>加入成功且人數達到上限</td>
-            <td>full</td>
-          </tr>
-          <tr>
-            <td>full</td>
-            <td>取消加入或人數下降</td>
-            <td>open</td>
-          </tr>
-          <tr>
-            <td>full</td>
-            <td>團主關閉揪團</td>
-            <td>closed</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <!-- [IMP-02] 揪團看板模組 (UC-02 / UC-03) -->
+    <div class="board-section">
+        <h2>目前揪團看板 (UC-02 & UC-03)</h2>
+        <div id="board-grid" class="grid"></div>
+    </div>
 
-    <section class="panel">
-      <h2>4. 目前可操作切片展示</h2>
-      <div class="board" id="board"></div>
-      <div class="footer-note">點擊加入按鈕可模擬系統更新人數、剩餘名額與分攤金額。</div>
-    </section>
-  </div>
+    <!-- [任務 7 & 11] 模型與狀態自動化測試主控台 -->
+    <div class="test-section">
+        <h2>模型與狀態轉移自動化測試 (任務 11)</h2>
+        <p style="font-size:13px; color:var(--muted);">此處會自動驗證：主要流程、替代流程（邊界輸入驗證）、合法狀態轉移與非法狀態轉移攔截。</p>
+        <button id="btn-run-tests" style="background-color: #10b981; width: auto; margin-bottom: 15px;">執行模型測試套件</button>
+        <table class="test-table">
+            <thead>
+                <tr>
+                    <th>編號</th>
+                    <th>測試分類</th>
+                    <th>測試情境說明</th>
+                    <th>預期行為</th>
+                    <th>測試結果</th>
+                </tr>
+            </thead>
+            <tbody id="test-results-body">
+                <tr><td colspan="5" style="text-align: center; color: var(--muted);">點擊上述按鈕執行測試</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-  <script>
-    const board = document.getElementById('board');
-    const cards = [
-      { title: '下午校園共乘', location: '台北校區 → 松山', seats: 4, max: 5, price: 120, joined: 1 },
-      { title: '晚間回家分攤', location: '淡水 → 台北車站', seats: 2, max: 4, price: 90, joined: 2 }
-    ];
+<script>
+/**
+ * =========================================================================
+ * 1. ENTITY (實體類別) - 維護資料狀態與業務規則
+ * 對應任務 1 / 任務 2 / 任務 3
+ * =========================================================================
+ */
+class User {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }
+}
 
-    function render() {
-      board.innerHTML = '';
-      cards.forEach((card, index) => {
-        const full = card.joined >= card.max;
-        const remaining = card.max - card.joined;
-        const splitAmount = Math.round(card.price / card.max * 100) / 100;
-        const item = document.createElement('article');
-        item.className = `activity-card${full ? ' full' : ''}`;
-        item.innerHTML = `
-          <h3>${card.title}</h3>
-          <p><strong>路線：</strong>${card.location}</p>
-          <p><strong>目前人數：</strong>${card.joined}/${card.max}</p>
-          <p><strong>剩餘名額：</strong>${remaining}</p>
-          <p><strong>每人分攤：</strong>${splitAmount} 元</p>
-          <button class="action" ${full ? 'disabled' : ''}>${full ? '已滿額' : '加入揪團'}</button>
-        `;
-        const button = item.querySelector('button');
-        button.addEventListener('click', () => {
-          if (card.joined < card.max) {
-            card.joined += 1;
-            render();
-          }
-        });
-        board.appendChild(item);
-      });
+class JoinRecord {
+    constructor(userId, joinedAt) {
+        this.userId = userId;
+        this.joinedAt = joinedAt;
+    }
+}
+
+class Group {
+    constructor(id, title, totalCost, maxMembers, ownerId) {
+        this.id = id;
+        this.title = title;
+        this.totalCost = totalCost;
+        this.maxMembers = maxMembers;
+        this.status = 'open'; // 狀態轉移模型: 'open' | 'full' | 'closed'
+        this.members = [new JoinRecord(ownerId, new Date())]; // 團主預設加入
     }
 
-    render();
-  </script>
+    get currentMembersCount() {
+        return this.members.length;
+    }
+
+    // 計算當前每人應付平攤金額（採四捨五入至整數）
+    calculateShareCost() {
+        if (this.currentMembersCount === 0) return this.totalCost;
+        return Math.round(this.totalCost / this.currentMembersCount);
+    }
+
+    // 狀態轉移守衛 (Guard Condition)
+    canJoin() {
+        return this.status === 'open' && this.currentMembersCount < this.maxMembers;
+    }
+
+    // 新增成員並觸發狀態變更
+    addMember(userId) {
+        if (!this.canJoin()) {
+            throw new Error(`非法狀態轉移拒絕: 目前狀態為 [${this.status}] 或人數已達上限。`);
+        }
+
+        this.members.push(new JoinRecord(userId, new Date()));
+
+        // 狀態轉移: open -> full
+        if (this.currentMembersCount >= this.maxMembers) {
+            this.status = 'full';
+        }
+    }
+}
+
+/**
+ * =========================================================================
+ * 2. CONTROL (控制類別) - 協調業務流程與防呆校驗 (UC-01 ~ UC-03)
+ * 對應任務 4 (BCE 責任檢核)
+ * =========================================================================
+ */
+class GroupController {
+    constructor() {
+        // 初始化記憶體資料
+        this.groups = [
+            new Group(1, "校門口搭計程車到火車站", 300, 3, 101),
+            new Group(2, "麥當勞宵夜外送團", 600, 5, 102)
+        ];
+        // 模擬讓第 2 團達到滿額狀態
+        for(let i=0; i<4; i++) {
+            this.groups[1].addMember(200 + i);
+        }
+    }
+
+    // UC-01: 發起揪團與欄位校驗
+    createGroup(title, totalCost, maxMembers) {
+        const cleanTitle = title.trim();
+        if (!cleanTitle) throw new Error('揪團主題不可為空');
+        if (isNaN(totalCost) || totalCost < 1) throw new Error('總金額必須大於 0 元');
+        if (isNaN(maxMembers) || maxMembers < 2 || maxMembers > 10) throw new Error('徵求總人數必須介於 2 ~ 10 人之間');
+
+        const newGroup = new Group(Date.now(), cleanTitle, totalCost, maxMembers, 999);
+        this.groups.unshift(newGroup);
+        return newGroup;
+    }
+
+    // UC-03: 加入揪團
+    joinGroup(groupId, userId) {
+        const group = this.groups.find(g => g.id === groupId);
+        if (!group) throw new Error('找不到該揪團');
+        
+        group.addMember(userId);
+        return group;
+    }
+
+    getAllGroups() {
+        return this.groups;
+    }
+}
+
+/**
+ * =========================================================================
+ * 3. BOUNDARY (邊界類別) - UI 渲染與 XSS 防護
+ * 對應任務 1 / 任務 5
+ * =========================================================================
+ */
+class BoardView {
+    constructor(controller) {
+        this.controller = controller;
+        this.boardGrid = document.getElementById('board-grid');
+        this.createForm = document.getElementById('create-form');
+    }
+
+    static escapeHtml(text) {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    render() {
+        this.boardGrid.innerHTML = '';
+        const groups = this.controller.getAllGroups();
+
+        if (groups.length === 0) {
+            this.boardGrid.innerHTML = '<p style="color: var(--muted); text-align: center; grid-column: 1/-1;">目前沒有揪團，快發起一個吧！</p>';
+            return;
+        }
+
+        groups.forEach(group => {
+            const isFull = group.status === 'full';
+            const isClosed = group.status === 'closed';
+            const shareCost = group.calculateShareCost();
+
+            const card = document.createElement('div');
+            card.className = `card ${group.status}`;
+            
+            card.innerHTML = `
+                <div>
+                    <span class="badge ${group.status}">${isFull ? '已滿額' : (isClosed ? '已關閉' : '招募中')}</span>
+                    <div class="card-title">${BoardView.escapeHtml(group.title)}</div>
+                    <div class="card-info">💰 總金額：$${group.totalCost} NTD</div>
+                    <div class="card-info">👥 目前人數：${group.currentMembersCount} / ${group.maxMembers} 人</div>
+                    
+                    <div class="price-box">
+                        <div style="font-size: 12px; color: var(--muted);">目前每人平攤</div>
+                        <div class="share-amount">$${shareCost} <span style="font-size:12px;">NTD/人</span></div>
+                    </div>
+                </div>
+                <button style="margin-top:15px;" 
+                        ${!group.canJoin() ? 'disabled' : ''} 
+                        onclick="app.handleJoin(${group.id})">
+                    ${isFull ? '人數已滿' : (isClosed ? '揪團已關閉' : '確定加入 (+1)')}
+                </button>
+            `;
+            this.boardGrid.appendChild(card);
+        });
+    }
+
+    bindEvents() {
+        this.createForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            try {
+                const title = document.getElementById('title').value;
+                const totalCost = parseInt(document.getElementById('total-cost').value, 10);
+                const maxMembers = parseInt(document.getElementById('max-members').value, 10);
+
+                this.controller.createGroup(title, totalCost, maxMembers);
+                this.render();
+                this.createForm.reset();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+    }
+}
+
+/**
+ * =========================================================================
+ * 4. 系統初始化與事件橋接器 (Application Root)
+ * =========================================================================
+ */
+const controller = new GroupController();
+const view = new BoardView(controller);
+
+window.app = {
+    handleJoin: (groupId) => {
+        try {
+            // 模擬當前使用者 ID (例如隨機亂數)
+            const randomUserId = Math.floor(Math.random() * 1000);
+            controller.joinGroup(groupId, randomUserId);
+            view.render();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+};
+
+// 綁定 DOM 事件與初始渲染
+view.bindEvents();
+view.render();
+
+/**
+ * =========================================================================
+ * 5. 任務 11 自動化測試套件 (Model and State Tests)
+ * =========================================================================
+ */
+document.getElementById('btn-run-tests').addEventListener('click', () => {
+    const testCases = [
+        {
+            id: 'T-01',
+            type: '主要流程',
+            desc: 'UC-01 建立新揪團 (發起成功，狀態預設 open)',
+            run: () => {
+                const ctrl = new GroupController();
+                const g = ctrl.createGroup('測試共乘', 300, 3);
+                return g.status === 'open' && g.currentMembersCount === 1;
+            }
+        },
+        {
+            id: 'T-02',
+            type: '主要流程',
+            desc: 'UC-03 加入揪團與平攤計算 ($300/2人 = $150)',
+            run: () => {
+                const ctrl = new GroupController();
+                const g = ctrl.createGroup('測試計算', 300, 3);
+                ctrl.joinGroup(g.id, 888);
+                return g.currentMembersCount === 2 && g.calculateShareCost() === 150;
+            }
+        },
+        {
+            id: 'T-03',
+            type: '替代流程',
+            desc: 'UC-01 邊界例外 (總人數小於 2 人應被拒絕)',
+            run: () => {
+                const ctrl = new GroupController();
+                try {
+                    ctrl.createGroup('無效團', 200, 1);
+                    return false;
+                } catch (e) {
+                    return e.message.includes('必須介於 2 ~ 10 人');
+                }
+            }
+        },
+        {
+            id: 'T-04',
+            type: '替代流程',
+            desc: 'UC-01 邊界例外 (總金額為 0 應被拒絕)',
+            run: () => {
+                const ctrl = new GroupController();
+                try {
+                    ctrl.createGroup('免費團', 0, 3);
+                    return false;
+                } catch (e) {
+                    return e.message.includes('必須大於 0 元');
+                }
+            }
+        },
+        {
+            id: 'T-05',
+            type: '合法狀態轉移',
+            desc: '狀態轉移 open -> full (人數達上限時自動變更)',
+            run: () => {
+                const ctrl = new GroupController();
+                const g = ctrl.createGroup('滿額測試', 200, 2); // 團主佔 1 人
+                ctrl.joinGroup(g.id, 999); // 加入第 2 人
+                return g.status === 'full' && g.canJoin() === false;
+            }
+        },
+        {
+            id: 'T-06',
+            type: '非法狀態轉移',
+            desc: '狀態守衛攔截 (已滿額 full 狀態下拒絕強行加入)',
+            run: () => {
+                const ctrl = new GroupController();
+                const g = ctrl.createGroup('防呆測試', 200, 2);
+                ctrl.joinGroup(g.id, 101); // 滿額
+                try {
+                    ctrl.joinGroup(g.id, 102); // 超額加入
+                    return false;
+                } catch (e) {
+                    return e.message.includes('非法狀態轉移拒絕');
+                }
+            }
+        },
+        {
+            id: 'T-07',
+            type: '非法狀態轉移',
+            desc: '狀態守衛攔截 (已關閉 closed 狀態下拒絕加入)',
+            run: () => {
+                const g = new Group(99, '已關閉團', 400, 4, 1);
+                g.status = 'closed';
+                try {
+                    g.addMember(202);
+                    return false;
+                } catch (e) {
+                    return e.message.includes('非法狀態轉移拒絕');
+                }
+            }
+        }
+    ];
+
+    const tbody = document.getElementById('test-results-body');
+    tbody.innerHTML = '';
+
+    testCases.forEach(tc => {
+        let isPass = false;
+        try {
+            isPass = tc.run();
+        } catch (err) {
+            isPass = false;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${tc.id}</strong></td>
+            <td>${tc.type}</td>
+            <td>${tc.desc}</td>
+            <td>符合預期規則</td>
+            <td class="${isPass ? 'pass' : 'fail'}">${isPass ? 'PASS (通過)' : 'FAIL (失敗)'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+});
+</script>
 </body>
 </html>
