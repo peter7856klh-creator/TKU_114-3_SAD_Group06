@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>校園揪團與共乘分攤平台 - 物件導向分析模型</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --accent: #10b981;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --danger: #ef4444;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    h1, h2, h3 { margin-top: 0; }
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: var(--primary-dark);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-list {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .class-card {
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      padding: 16px;
+      background: #f8fbff;
+    }
+
+    .class-card h3 { margin-bottom: 8px; color: var(--primary-dark); }
+    .class-card ul { margin: 8px 0 0 18px; padding: 0; color: var(--muted); }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .step {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .status-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+    }
+    .status-open { background: var(--accent); }
+    .status-full { background: var(--danger); }
+    .status-closed { background: #64748b; }
+
+    .board {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 14px;
+    }
+
+    .activity-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      background: white;
+    }
+
+    .activity-card.full { border-color: var(--danger); background: #fef2f2; }
+    .action {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+    .action:hover { background: var(--primary-dark); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f8fafc; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">物件導向分析模型展示頁</div>
+      <h1>校園揪團與共乘分攤平台</h1>
+      <p>本頁整合了類別圖、循序圖與狀態模型，並展示目前可操作切片中「發起揪團、看板瀏覽、加入揪團與分攤計算」的核心流程。</p>
+    </header>
+
+    <section class="panel">
+      <h2>1. 分析類別</h2>
+      <div class="card-list">
+        <article class="class-card">
+          <h3>Group</h3>
+          <ul>
+            <li>保存揪團基本資料</li>
+            <li>管理 open / full / closed 狀態</li>
+            <li>計算剩餘名額</li>
+          </ul>
+        </article>
+        <article class="class-card">
+          <h3>User</h3>
+          <ul>
+            <li>代表發起者與加入者</li>
+            <li>執行加入揪團操作</li>
+            <li>與 JoinRecord 建立關聯</li>
+          </ul>
+        </article>
+        <article class="class-card">
+          <h3>JoinRecord</h3>
+          <ul>
+            <li>紀錄加入時間與加入狀態</li>
+            <li>保存加入順序</li>
+            <li>支援多對多關係拆解</li>
+          </ul>
+        </article>
+        <article class="class-card">
+          <h3>SplitResult</h3>
+          <ul>
+            <li>保存分攤結果</li>
+            <li>依據車資與人數計算</li>
+            <li>支援後續歷史版本擴充</li>
+          </ul>
+        </article>
+        <article class="class-card">
+          <h3>StatusLog</h3>
+          <ul>
+            <li>記錄狀態變更歷程</li>
+            <li>支援追蹤 open → full → closed</li>
+            <li>方便回溯與驗證</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. 核心循序流程</h2>
+      <div class="timeline">
+        <div class="step"><strong>1.</strong> 團主建立揪團：Group 建立一筆資料並設定初始狀態為 open。</div>
+        <div class="step"><strong>2.</strong> 使用者瀏覽看板：系統讀取 Group 資料並計算剩餘名額。</div>
+        <div class="step"><strong>3.</strong> 使用者加入揪團：User 觸發加入操作，JoinRecord 記錄事件。</div>
+        <div class="step"><strong>4.</strong> 系統更新狀態：若人數達上限，Group 轉為 full；若有人取消，則重新回到 open。</div>
+        <div class="step"><strong>5.</strong> 分攤計算：SplitResult 依據總車資與加入人數計算每人應付。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. 狀態模型</h2>
+      <div class="status-row">
+        <span class="status-pill status-open">open</span>
+        <span class="status-pill status-full">full</span>
+        <span class="status-pill status-closed">closed</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>狀態</th>
+            <th>事件</th>
+            <th>下一狀態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>open</td>
+            <td>加入成功且人數未達上限</td>
+            <td>open</td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td>加入成功且人數達到上限</td>
+            <td>full</td>
+          </tr>
+          <tr>
+            <td>full</td>
+            <td>取消加入或人數下降</td>
+            <td>open</td>
+          </tr>
+          <tr>
+            <td>full</td>
+            <td>團主關閉揪團</td>
+            <td>closed</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>4. 目前可操作切片展示</h2>
+      <div class="board" id="board"></div>
+      <div class="footer-note">點擊加入按鈕可模擬系統更新人數、剩餘名額與分攤金額。</div>
+    </section>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const cards = [
+      { title: '下午校園共乘', location: '台北校區 → 松山', seats: 4, max: 5, price: 120, joined: 1 },
+      { title: '晚間回家分攤', location: '淡水 → 台北車站', seats: 2, max: 4, price: 90, joined: 2 }
+    ];
+
+    function render() {
+      board.innerHTML = '';
+      cards.forEach((card, index) => {
+        const full = card.joined >= card.max;
+        const remaining = card.max - card.joined;
+        const splitAmount = Math.round(card.price / card.max * 100) / 100;
+        const item = document.createElement('article');
+        item.className = `activity-card${full ? ' full' : ''}`;
+        item.innerHTML = `
+          <h3>${card.title}</h3>
+          <p><strong>路線：</strong>${card.location}</p>
+          <p><strong>目前人數：</strong>${card.joined}/${card.max}</p>
+          <p><strong>剩餘名額：</strong>${remaining}</p>
+          <p><strong>每人分攤：</strong>${splitAmount} 元</p>
+          <button class="action" ${full ? 'disabled' : ''}>${full ? '已滿額' : '加入揪團'}</button>
+        `;
+        const button = item.querySelector('button');
+        button.addEventListener('click', () => {
+          if (card.joined < card.max) {
+            card.joined += 1;
+            render();
+          }
+        });
+        board.appendChild(item);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
